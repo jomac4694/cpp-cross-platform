@@ -157,26 +157,26 @@ LRESULT __stdcall WindowsGlobalListener::MouseCallback(int nCode, WPARAM wParam,
             m.action = Input::Mouse::PRESS;
             m.button = Input::Mouse::Left;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            Robot::context->OnMousePress(m);
+            mContext->OnMousePress(m);
             listener.OnMousePress(m);
 			break;
         case WM_LBUTTONUP:
             m.action = Input::Mouse::RELEASE;
             m.button = Input::Mouse::Left;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            Robot::context->OnMouseRelease(m);
+            mContext->OnMouseRelease(m);
             break;
         case WM_RBUTTONDOWN:
             m.action = Input::Mouse::PRESS;
             m.button = Input::Mouse::Right;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            Robot::context->OnMousePress(m);
+            mContext->OnMousePress(m);
             break;
         case WM_RBUTTONUP:
             m.action = Input::Mouse::RELEASE;
             m.button = Input::Mouse::Right;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            Robot::context->OnMouseRelease(m);
+            mContext->OnMouseRelease(m);
             break;
 		case WM_MOUSEMOVE:
 			auto xPos = pMouseStruct->pt.x;
@@ -188,7 +188,7 @@ LRESULT __stdcall WindowsGlobalListener::MouseCallback(int nCode, WPARAM wParam,
             //std::cout << "x=" << m.x <<std::endl;
             //std::cout << "y=" << m.y << std::endl;
             //std::cout << "timestamp=" << m.timestamp << std::endl;
-            Robot::context->OnMouseMove(m);
+            mContext->OnMouseMove(m);
 			break;
 		}
 
@@ -211,7 +211,7 @@ LRESULT __stdcall WindowsGlobalListener::KeyboardCallback(int nCode, WPARAM wPar
             e.key = virtualKeyToInputKey(kbdStruct.vkCode);
             e.action = Input::KeyBoard::PRESS;
             e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            Robot::context->OnKeyPress(e);
+            mContext->OnKeyPress(e);
 		}
         else if (wParam == WM_KEYUP)
         {
@@ -220,7 +220,7 @@ LRESULT __stdcall WindowsGlobalListener::KeyboardCallback(int nCode, WPARAM wPar
             e.key = virtualKeyToInputKey(kbdStruct.vkCode);
             e.action = Input::KeyBoard::RELEASE;
             e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            Robot::context->OnKeyRelease(e);
+            mContext->OnKeyRelease(e);
         }
 	}
 

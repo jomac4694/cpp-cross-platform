@@ -1,5 +1,6 @@
-#include "WindowsRobotImpl.h"
+//#include "WindowsRobotImpl.h"
 #include "Windows.h"
+#include "RobotImpl.h"
 
 
 namespace
@@ -115,12 +116,9 @@ namespace
         // clang-format on
     }
 }
-WindowsRobotImpl::WindowsRobotImpl()
+namespace mr::RobotImpl
 {
-
-}
-
-void WindowsRobotImpl::KeyPress(GlobalKeyEvent e)
+void KeyPress(GlobalKeyEvent e)
 {
     INPUT input[1] = { 0 };
     input[0].type = INPUT_KEYBOARD;
@@ -136,7 +134,7 @@ void WindowsRobotImpl::KeyPress(GlobalKeyEvent e)
     }
 }
 
-void WindowsRobotImpl::KeyRelease(GlobalKeyEvent e)
+void KeyRelease(GlobalKeyEvent e)
 {
     INPUT input[1] = { 0 };
     input[0].type = INPUT_KEYBOARD;
@@ -152,7 +150,7 @@ void WindowsRobotImpl::KeyRelease(GlobalKeyEvent e)
     }
 }
 
-void WindowsRobotImpl::MoveMove(GlobalMouseEvent e)
+void MouseMove(GlobalMouseEvent e)
 {
     
     POINT p;
@@ -178,7 +176,7 @@ void WindowsRobotImpl::MoveMove(GlobalMouseEvent e)
     */
 }
 
-void WindowsRobotImpl::MousePress(GlobalMouseEvent e)
+void MousePress(GlobalMouseEvent e)
 {
 	INPUT input[1] = { 0 };
 	input[0].type = INPUT_MOUSE;
@@ -190,7 +188,7 @@ void WindowsRobotImpl::MousePress(GlobalMouseEvent e)
     }
 }
 
-void WindowsRobotImpl::MouseRelease(GlobalMouseEvent e)
+void MouseRelease(GlobalMouseEvent e)
 {
 	INPUT input[1] = { 0 };
 	input[0].type = INPUT_MOUSE;
@@ -200,4 +198,5 @@ void WindowsRobotImpl::MouseRelease(GlobalMouseEvent e)
     {
         std::cout << HRESULT_FROM_WIN32(GetLastError()) << std::endl;
     }
+}
 }

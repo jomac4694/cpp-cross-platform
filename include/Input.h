@@ -1,9 +1,19 @@
 #pragma once
+#include <chrono>
+namespace mr
+{
 namespace Input
 {
 
+struct GlobalKeyEvent;
+struct GlobalMouseEvent;
 namespace KeyBoard
 {
+
+    void KeyPress(GlobalKeyEvent e);
+
+	void KeyRelease(GlobalKeyEvent e);
+
     enum Action
     {
         PRESS, RELEASE
@@ -11,7 +21,7 @@ namespace KeyBoard
     enum Key
     {
         Unknown = -1, //!< Unhandled key
-        A = 0,  //!< The A key
+        A = 0,        //!< The A key
         B,            //!< The B key
         C,            //!< The C key
         D,            //!< The D key
@@ -113,13 +123,19 @@ namespace KeyBoard
         F15,          //!< The F15 key
         Pause,        //!< The Pause key
 
-        KeyCount, //!< Keep last -- the total number of keyboard keys
+        KeyCount,     //!< Keep last -- the total number of keyboard keys
     };
 
 }
 
 namespace Mouse
 {
+    void MouseMove(GlobalMouseEvent e);
+
+	void MousePress(GlobalMouseEvent e);
+
+	void MouseRelease(GlobalMouseEvent e); 
+
     enum Action
     {
         PRESS, RELEASE, MOVE
@@ -145,5 +161,25 @@ namespace Mouse
         HorizontalWheel //!< The horizontal mouse wheel
     };
 }
+struct GlobalEvent
+{
 
+};
+
+struct GlobalMouseEvent : GlobalEvent
+{
+	std::time_t timestamp;
+	int x;
+	int y;
+	Mouse::Action action;
+	Input::Mouse::Button button;
+};
+
+struct GlobalKeyEvent : GlobalEvent
+{
+	std::time_t timestamp;
+	KeyBoard::Action action;
+	Input::KeyBoard::Key key;
+};
+}
 }

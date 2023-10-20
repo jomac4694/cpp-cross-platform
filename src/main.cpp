@@ -1,20 +1,10 @@
 #include <iostream>
-#include <Windows.h>
-#include <windowsx.h>
-#include "WindowsGlobalListener.h"
-#include "WindowsRobotImpl.h"
 #include <thread>
-#include "Playback.h"
-#include "RobotFactory.h"
-#include <mutex>
-#include <random>
+#include <chrono>
+#include "/Users/josephmcilvaine/cpp-cross-platform/include/RobotImpl.h"
+#ifdef _WIN32
+#include <Windows.h>
 
-
-
-using namespace Robot;
-
- std::shared_ptr<Recording> mRecording = std::shared_ptr< Recording>(new Recording);
- std::shared_ptr<RecordingState> mState = std::shared_ptr<RecordingState>(new RecordingState);
 void test_drawing()
 {
 
@@ -25,13 +15,13 @@ void test_drawing()
     HDC hDC_Desktop = GetDC(0);
 
     /* Draw a simple blue rectangle on the desktop */
-    RECT rect = { 20, 20, 200, 200 };
+    RECT rect = {20, 20, 200, 200};
     LOGBRUSH lb;
     lb.lbStyle = BS_SOLID;
     lb.lbColor = RGB(0, 255, 0);
     lb.lbHatch = 0;
-    HGDIOBJ  pen = CreatePen(PS_COSMETIC, 5, RGB(0, 255, 0));
-    HGDIOBJ  old;
+    HGDIOBJ pen = CreatePen(PS_COSMETIC, 5, RGB(0, 255, 0));
+    HGDIOBJ old;
     while (true)
     {
         for (int i = 100; i < 500; i++)
@@ -47,11 +37,11 @@ void test_drawing()
 
         Sleep(1);
     }
-    DeleteObject(pen); //you must delete GDI object!
+    DeleteObject(pen); // you must delete GDI object!
     Sleep(5000);
-
 }
-
+#endif
+/*
 void job()
 {
     WindowsGlobalListener listener;
@@ -102,60 +92,125 @@ void job2()
 
     }
 }
-void main()
+
+
+struct MyPoint {
+   int x, y; 
+   MyPoint() :x(0), y(0) { }
+   MyPoint(int xx, int yy) :x(xx), y(yy) { }
+};
+
+CGEventRef OnMouseEvent(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *userInfo)
 {
-    /*
-    std::thread t1(job);
-    std::thread t2(job2);
-    while(true) {
-            Sleep(1000);
-    }
-
-
-
-    t1.join();
-    t2.join();
-
-    */
-    for (int i = 0; i < 500; i++)
+    std::cout << "in here now" << std::endl;
+    if (type == kCGEventLeftMouseUp)
     {
-        GlobalMouseEvent e;
-        e.action = Input::Mouse::MOVE;
-        e.x = 100;
-        e.y = i;
-        e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        std::mutex m;
-        m.lock();
-        mRecording->push_back(std::shared_ptr<PlaybackAction>{new MouseAction(e)});
-        m.unlock();
+        std::cout << "left mouse is up" << std::endl;
     }
-
-    for (int i = 100; i < 400; i++)
+    else if (type == kCGEventKeyUp)
     {
-        GlobalMouseEvent e;
-        e.action = Input::Mouse::MOVE;
-        e.x = i;
-        e.y = 500;
-        e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        std::mutex m;
-        m.lock();
-        mRecording->push_back(std::shared_ptr<PlaybackAction>{new MouseAction(e)});
-        m.unlock();
+        std::cout << "key is up mofo" << std::endl;
     }
-
-    for (int i = 1; i < mRecording->size(); i++)
+    else if (type == kCGEventKeyDown)
     {
-        auto currAction = mRecording->at(i - 1);
-        auto nextAction = mRecording->at(i);
-        currAction->DoAction();
-        auto delta_t = (std::rand() % 10) + 0;
-        std::cout << "currTs=" << currAction->TimeStamp() << std::endl;
-        std::cout << "nextTs=" << nextAction->TimeStamp() << std::endl;
-        std::cout << "delta_t=" << delta_t << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::cout << "key is down" << std::endl;
     }
+    else if (type == kCGEventMouseMoved)
+    {
+        std::cout << "mouse moving" << std::endl;
+    }
+    return event;
+}
+
+void do_listening()
+{
+        std::cout << "starting macro recorder" << std::endl;
+    bool Result = false;
+    const void * Keys[] = { kAXTrustedCheckOptionPrompt };
+    const void * Values[] = { kCFBooleanTrue };
+
+    CFDictionaryRef Options;
+    Options = CFDictionaryCreate(kCFAllocatorDefault,
+                                 Keys, Values, sizeof(Keys) / sizeof(*Keys),
+                                 &kCFCopyStringDictionaryKeyCallBacks,
+                                 &kCFTypeDictionaryValueCallBacks);
+
+    AXIsProcessTrustedWithOptions(Options);
+    CFRunLoopRef ref = CFRunLoopGetCurrent();
     
+    CGEventMask mask = CGEventMaskBit(kCGEventLeftMouseDown) |
+                       CGEventMaskBit(kCGEventLeftMouseUp) |
+                       CGEventMaskBit(kCGEventRightMouseDown) |
+                       CGEventMaskBit(kCGEventRightMouseUp) |
+                       CGEventMaskBit(kCGEventMouseMoved) |
+                       CGEventMaskBit(kCGEventLeftMouseDragged) |
+                       CGEventMaskBit(kCGEventRightMouseDragged) |
+                       CGEventMaskBit(kCGEventScrollWheel);
 
+    CFMachPortRef tap =
+        CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap,
+                         kCGEventTapOptionDefault, kCGEventMaskForAllEvents, OnMouseEvent, NULL);
+
+    
+    CFRunLoopSourceRef source =
+        CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0);
+    CFRunLoopAddSource(ref, source, kCFRunLoopCommonModes);
+    if (!CGEventTapIsEnabled(tap))
+        std::cout << "yerrrrrr" << std::endl;
+    CGEventTapEnable(tap, true);
+
+    CFRunLoopRun();
+
+    
+    std::cout << "doing shizz" << std::endl;
+}
+
+   void mouse_event(CGMouseButton button, CGEventType type, CGPoint location)
+   {
+      CGEventRef event = CGEventCreateMouseEvent(NULL, type, location, button);
+      CGEventSetType(event, type);
+      CGEventPost(kCGHIDEventTap, event);
+      CFRelease(event);
+   }
+
+   void set_mouse_loc(MyPoint p) 
+{
+   CGPoint location = CGPointMake(p.x, p.y);
+   mouse_event(kCGMouseButtonLeft, kCGEventMouseMoved, location);
+}
+
+void domouse()
+{
+        for (int i = 0; i < 750; i++)
+    {
+        MyPoint p;
+        p.x = i;
+        p.y = i;
+        set_mouse_loc(p);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+}
+
+void DoJob()
+{
+    Input::KeyBoard::Action a;
+    MacGlobalListener listen;
+    listen.Start();
+}
+*/
+int main()
+{
+    mr::RobotImpl::KeyPress(GlobalKeyEvent());
+    for (int i = 0; i < 250; i++)
+    {
+        GlobalMouseEvent e;
+        e.x = i;
+        e.y = i;
+        e.action = Mouse::Action::MOVE;
+        mr::RobotImpl::MouseMove(e);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    return 0;
 }
 
 

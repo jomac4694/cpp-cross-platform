@@ -1,38 +1,16 @@
 #pragma once
-#include "Input.h"
+#include "/Users/josephmcilvaine/cpp-cross-platform/include/Input.h"
 #include <iostream>
 #include <vector>
-#include "Windows.h"
+//#include "Windows.h"
 
 
-struct GlobalEvent
-{
 
-};
 
-struct GlobalMouseEvent : GlobalEvent
-{
-	std::time_t timestamp;
-	int x;
-	int y;
-	Input::Mouse::Action action;
-	Input::Mouse::Button button;
-};
 
-struct GlobalKeyEvent : GlobalEvent
-{
-	std::time_t timestamp;
-	Input::KeyBoard::Action action;
-	Input::KeyBoard::Key key;
-};
 
 enum RecordingState { ACTIVE, STOPPED, PAUSED };
-class IGlobalListener
-{
-public:;
-	  virtual void Start() = 0;
-	  virtual void Stop() = 0;
-};
+
 
 class IListeningContext
 {
@@ -44,8 +22,14 @@ public:
 	virtual void OnMouseRelease(GlobalMouseEvent e) = 0;
 
 };
+class IGlobalListener
+{
+public:;
+	  virtual void Start() = 0;
+	  virtual void Stop() = 0;
+	 // virtual void SetContext(std::shared_ptr<IListeningContext> context) = 0;
+};
 
-class PlaybackAction;
 
 class ActiveRecordingManager : public IListeningContext
 {
@@ -56,7 +40,7 @@ public:
 	void OnMouseMove(GlobalMouseEvent e) override;
 	void OnMousePress(GlobalMouseEvent e) override;
 	void OnMouseRelease(GlobalMouseEvent e) override;
-	static DWORD WINAPI Replay(LPVOID lpParam);
+	//static DWORD WINAPI Replay(LPVOID lpParam);
 
 
 private:
