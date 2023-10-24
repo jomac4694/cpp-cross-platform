@@ -1,8 +1,12 @@
 #include <iostream>
 #include <thread>
+#include <mutex>
 #include <chrono>
 #include "RobotImpl.h"
 #include "RobotFactory.h"
+#include "MacGlobalListener.h"
+
+std::shared_ptr<Recording> mRecording;
 #ifdef _WIN32
 #include <Windows.h>
 #include "WindowsGlobalListener.h"
@@ -187,7 +191,7 @@ void DoJob()
     MacGlobalListener listen;
     listen.Start();
 }
-*/
+
 void job()
 {
     WindowsGlobalListener listener;
@@ -200,11 +204,7 @@ void job()
     }
 
     listener.Stop();
-}
-
-int main()
-{
-    time_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        time_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     time_t curr = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
    // std::thread t1(job);
 
@@ -223,7 +223,7 @@ int main()
     }
 
     listener.Stop();
-    /*
+    
     mr::RobotImpl::KeyPress(GlobalKeyEvent());
     for (int i = 0; i < 250; i++)
     {
@@ -234,7 +234,7 @@ int main()
         mr::RobotImpl::MouseMove(e);
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
-*/
+
  //   t1.join();
     std::cout << "record_size=" << mRecording->size() << std::endl;
     for (int i = 1; i < mRecording->size(); i++)
@@ -252,6 +252,70 @@ int main()
                     t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
     std::cout << "exting?" << std::endl;
+}
+*/
+
+
+void ajob()
+{
+   MacGlobalListener listener;
+   listener.Start();
+}
+int main()
+{
+    /*
+    std::thread t1(ajob);
+    mRecording = std::shared_ptr<std::vector<std::shared_ptr<mr::PlaybackAction>>>(new Recording);
+ 
+    while (true){
+      //  std::cout << "eyooo" << std::endl;
+
+        std::mutex m;
+        m.lock();
+        size_t recording_size = mRecording->size();
+        m.unlock();
+        std::cout << "size=" << recording_size << std::endl;
+        if (recording_size >= 500)
+        {
+            std::cout << "size exceeded" << std::endl;
+            break;
+        }
+    }
+    std::mutex m;
+    m.lock();
+    for (int i = 1; i < mRecording->size(); i++)
+    {
+                auto currAction = mRecording->at(i - 1);
+                auto nextAction = mRecording->at(i);
+                currAction->DoAction();
+                auto delta_t = nextAction->TimeStamp() - currAction->TimeStamp();
+              //  std::cout << "currTs=" << currAction->TimeStamp() << std::endl;
+              //  std::cout << "nextTs=" << nextAction->TimeStamp() << std::endl;
+               std::cout << "delta_t=" << delta_t << std::endl;
+               time_t t1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               time_t t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               while ((t2 - t1) <= delta_t)
+                    t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+    m.unlock();
+    t1.join();
+    */
+
+    CGContextRef drawContext = 0;
+
+    CGRect rect;
+    CGSize s;
+    s.width = 100;
+    s.height = 100;
+    rect.size = s;
+    rect.origin.x = 0;
+    rect.origin.y = -rect.size.height;
+    static const CGFloat white [] = {1.0, 1.0, 1.0, 1.0};
+    CGContextScaleCTM(drawContext, 1, -1);
+    CGContextSetFillColor(drawContext, white);
+    CGContextFillRect(drawContext, rect);
+    while (true){};
+    CGContextRelease(drawContext);
     return 0;
 }
 

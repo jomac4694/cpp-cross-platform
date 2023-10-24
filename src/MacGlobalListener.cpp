@@ -1,5 +1,7 @@
-#include "/Users/josephmcilvaine/cpp-cross-platform/include/MacGlobalListener.h"
-
+#include "MacGlobalListener.h"
+#include "RobotFactory.h"
+#include <chrono>
+extern std::shared_ptr<Recording> mRecording;
 
 namespace mr
 {
@@ -268,7 +270,7 @@ void MacGlobalListener::Stop()
 
 CGEventRef MacGlobalListener::OnInput(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *userInfo)
 {
-    std::cout << "in here now" << std::endl;
+    //std::cout << "in here now" << std::endl;
     if (type == kCGEventLeftMouseUp)
     {
         std::cout << "left mouse is up" << std::endl;
@@ -283,8 +285,8 @@ CGEventRef MacGlobalListener::OnInput(CGEventTapProxy proxy, CGEventType type, C
         CGEventKeyboardGetUnicodeString(event, 1,  &c, ch);
         std::cout << "key1=" << ch[0] << std::endl;
         GlobalKeyEvent e;
-        e.action = Input::KeyBoard::Action::RELEASE;
-        e.key = virtualKeyToInputKey(code);
+        e.action = mr::Input::KeyBoard::Action::RELEASE;
+        e.key = mr::virtualKeyToInputKey(code);
         Context::ContextManager::mContext;
     }
     else if (type == kCGEventKeyDown)
@@ -293,7 +295,15 @@ CGEventRef MacGlobalListener::OnInput(CGEventTapProxy proxy, CGEventType type, C
     }
     else if (type == kCGEventMouseMoved)
     {
-        std::cout << "mouse moving" << std::endl;
+      //  std::cout << "mouse moving" << std::endl;
+        mr::Input::GlobalMouseEvent m;
+        CGPoint p = CGEventGetLocation(event);
+        m.action = mr::Input::Mouse::MOVE;
+        m.x = p.x;
+        m.y = p.y;
+        m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        if (mRecording->size() < 500)
+            mRecording->push_back(std::shared_ptr<mr::PlaybackAction>(new mr::MouseAction(m)));
         
     }
     return event;

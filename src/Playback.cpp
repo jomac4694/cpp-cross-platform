@@ -1,6 +1,5 @@
 #include "Playback.h"
 #include "Input.h"
-#include "Playback.h"
 #include <thread>
 #include <iostream>
 #include "RobotImpl.h"

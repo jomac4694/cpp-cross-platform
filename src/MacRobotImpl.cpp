@@ -1,4 +1,4 @@
-#include "/Users/josephmcilvaine/cpp-cross-platform/include/RobotImpl.h"
+#include "RobotImpl.h"
 #include "ApplicationServices/ApplicationServices.h"
 #include <iostream>
 namespace

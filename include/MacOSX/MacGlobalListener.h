@@ -1,4 +1,4 @@
-#include "/Users/josephmcilvaine/cpp-cross-platform/include/GlobalListener.h"
+#include "GlobalListener.h"
 #include "ApplicationServices/ApplicationServices.h"
 
 
