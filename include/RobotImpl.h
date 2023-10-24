@@ -1,5 +1,5 @@
 #pragma once
-#include "/Users/josephmcilvaine/cpp-cross-platform/include/Input.h"
+#include "Input.h"
 using namespace mr::Input;
 namespace mr::RobotImpl
 {

@@ -1,5 +1,4 @@
-#include "/Users/josephmcilvaine/cpp-cross-platform/include/RobotImpl.h"
-
+#include "RobotImpl.h"
 
 namespace mr
 {

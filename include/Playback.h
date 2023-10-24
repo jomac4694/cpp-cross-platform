@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
-#include "GlobalListener.h"
+#include "Input.h"
+namespace mr
+{
 class PlaybackAction
 {
 public:
@@ -11,23 +13,24 @@ public:
 class KeyboardAction : public PlaybackAction
 {
 public:
-	KeyboardAction(GlobalKeyEvent e);
+	KeyboardAction(Input::GlobalKeyEvent e);
 	void DoAction() override;
 	time_t TimeStamp() override;
 
 
 private:
-	GlobalKeyEvent mEvent;
+	Input::GlobalKeyEvent mEvent;
 
 };
 class MouseAction : public PlaybackAction
 {
 public:
-	MouseAction(GlobalMouseEvent e);
+	MouseAction(Input::GlobalMouseEvent e);
 	void DoAction() override;
 	time_t TimeStamp() override;
 
 private:
-	GlobalMouseEvent mEvent;
+	Input::GlobalMouseEvent mEvent;
 
 };
+}

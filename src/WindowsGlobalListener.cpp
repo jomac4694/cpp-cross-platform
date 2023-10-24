@@ -1,12 +1,12 @@
 #include "WindowsGlobalListener.h"
 #include <Windows.h>
 #include <windowsx.h>
-#include "Input.h"
-#include "GlobalListener.h"
-#include "RobotFactory.h"
 #include <chrono>
 #include <iostream>
-namespace
+#include "RobotFactory.h"
+using namespace mr;
+extern std::shared_ptr<Recording> mRecording;
+namespace 
 {
     Input::KeyBoard::Key virtualKeyToInputKey(UINT virtualKey)
     {
@@ -145,11 +145,11 @@ WindowsGlobalListener::WindowsGlobalListener()
 // a key is pressed.
 LRESULT __stdcall WindowsGlobalListener::MouseCallback(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	ActiveRecordingManager listener;
+    static int mouse_move_count = 0;
 
 	if (nCode >= 0)
 	{
-        GlobalMouseEvent m = {};
+        Input::GlobalMouseEvent m = {};
         MSLLHOOKSTRUCT* pMouseStruct = (MSLLHOOKSTRUCT*)lParam;
 		switch (wParam)
 		{
@@ -157,26 +157,25 @@ LRESULT __stdcall WindowsGlobalListener::MouseCallback(int nCode, WPARAM wParam,
             m.action = Input::Mouse::PRESS;
             m.button = Input::Mouse::Left;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mContext->OnMousePress(m);
-            listener.OnMousePress(m);
+            mRecording->push_back(std::shared_ptr<PlaybackAction>(new MouseAction(m)));
 			break;
         case WM_LBUTTONUP:
             m.action = Input::Mouse::RELEASE;
             m.button = Input::Mouse::Left;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mContext->OnMouseRelease(m);
+            mRecording->push_back(std::shared_ptr<PlaybackAction>(new MouseAction(m)));
             break;
         case WM_RBUTTONDOWN:
             m.action = Input::Mouse::PRESS;
             m.button = Input::Mouse::Right;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mContext->OnMousePress(m);
+            mRecording->push_back(std::shared_ptr<PlaybackAction>(new MouseAction(m)));
             break;
         case WM_RBUTTONUP:
             m.action = Input::Mouse::RELEASE;
             m.button = Input::Mouse::Right;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mContext->OnMouseRelease(m);
+            mRecording->push_back(std::shared_ptr<PlaybackAction>(new MouseAction(m)));
             break;
 		case WM_MOUSEMOVE:
 			auto xPos = pMouseStruct->pt.x;
@@ -185,10 +184,16 @@ LRESULT __stdcall WindowsGlobalListener::MouseCallback(int nCode, WPARAM wParam,
 			m.x = xPos;
 			m.y = yPos;
             m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            //std::cout << "x=" << m.x <<std::endl;
-            //std::cout << "y=" << m.y << std::endl;
-            //std::cout << "timestamp=" << m.timestamp << std::endl;
-            mContext->OnMouseMove(m);
+           // std::cout << "x=" << m.x <<std::endl;
+          //  std::cout << "y=" << m.y << std::endl;
+           // std::cout << "timestamp=" << m.timestamp << std::endl;
+            mRecording->push_back(std::shared_ptr<PlaybackAction>(new MouseAction(m)));
+            mouse_move_count++;
+            if (mouse_move_count == 5000)
+            {
+               // std::cout << "heyo" << std::endl;
+                PostThreadMessageA(GetCurrentThreadId(), 0, wParam, lParam);
+            }
 			break;
 		}
 
@@ -207,20 +212,21 @@ LRESULT __stdcall WindowsGlobalListener::KeyboardCallback(int nCode, WPARAM wPar
 		{
 			// lParam is the pointer to the struct containing the data needed, so cast and assign it to kdbStruct.
 			kbdStruct = *((KBDLLHOOKSTRUCT*)lParam);
-            GlobalKeyEvent e;
+            Input::GlobalKeyEvent e;
             e.key = virtualKeyToInputKey(kbdStruct.vkCode);
             e.action = Input::KeyBoard::PRESS;
             e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mContext->OnKeyPress(e);
+            mRecording->push_back(std::shared_ptr<PlaybackAction>(new KeyboardAction(e)));
 		}
         else if (wParam == WM_KEYUP)
         {
             kbdStruct = *((KBDLLHOOKSTRUCT*)lParam);
-            GlobalKeyEvent e;
+            Input::GlobalKeyEvent e;
             e.key = virtualKeyToInputKey(kbdStruct.vkCode);
             e.action = Input::KeyBoard::RELEASE;
             e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mContext->OnKeyRelease(e);
+            mRecording->push_back(std::shared_ptr<PlaybackAction>(new KeyboardAction(e)));
+
         }
 	}
 
@@ -237,11 +243,11 @@ void WindowsGlobalListener::SetHook()
 	// in another place then your own code file anyway. Read more about it at MSDN.
 	if (!(_Keyboardhook = SetWindowsHookEx(WH_KEYBOARD_LL, WindowsGlobalListener::KeyboardCallback, NULL, 0)))
 	{
-		MessageBox(NULL, (LPCWSTR)"Failed to install hook!", (LPCWSTR)"Error", MB_ICONERROR);
+		//MessageBox(NULL, (LPCWSTR)"Failed to install hook!", (LPCWSTR)"Error", MB_ICONERROR);
 	}
 	if (!(_Mousehook = SetWindowsHookEx(WH_MOUSE_LL, WindowsGlobalListener::MouseCallback, NULL, 0)))
 	{
-		MessageBox(NULL, (LPCWSTR)"Failed to install hook!", (LPCWSTR)"Error", MB_ICONERROR);
+		//MessageBox(NULL, (LPCWSTR)"Failed to install hook!", (LPCWSTR)"Error", MB_ICONERROR);
 	}
 }
 void WindowsGlobalListener::Start()

@@ -1,5 +1,5 @@
 #pragma once
-#include "/Users/josephmcilvaine/cpp-cross-platform/include/Input.h"
+#include "Input.h"
 #include <iostream>
 #include <vector>
 //#include "Windows.h"
@@ -8,7 +8,7 @@
 
 
 
-
+using namespace mr::Input;
 enum RecordingState { ACTIVE, STOPPED, PAUSED };
 
 

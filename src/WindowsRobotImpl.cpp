@@ -1,9 +1,8 @@
 //#include "WindowsRobotImpl.h"
-#include "Windows.h"
 #include "RobotImpl.h"
-
-
-namespace
+#include "Windows.h"
+#include <iostream>
+namespace mr
 {
     int sfKeyToVirtualKey(Input::KeyBoard::Key key)
     {
@@ -152,7 +151,7 @@ void KeyRelease(GlobalKeyEvent e)
 
 void MouseMove(GlobalMouseEvent e)
 {
-    
+    /*
     POINT p;
     GetCursorPos(&p);
     std::cout << "GetCursorPos x=" << p.x << ",y=" << p.y << std::endl;
@@ -164,8 +163,8 @@ void MouseMove(GlobalMouseEvent e)
    
     if (SetCursorPos(e.x, e.y) == 0)
         std::cout << "SetCursorPos failed, not good" << std::endl;
-   
-    /*
+   */
+    
     INPUT input;
     input.type = INPUT_MOUSE;
     input.mi.time = 0;
@@ -173,7 +172,7 @@ void MouseMove(GlobalMouseEvent e)
     input.mi.dy = e.y * (65536 / GetSystemMetrics(SM_CYSCREEN));
     input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE_NOCOALESCE;
     SendInput(1, &input, sizeof(input));
-    */
+    
 }
 
 void MousePress(GlobalMouseEvent e)

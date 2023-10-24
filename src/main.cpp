@@ -1,10 +1,13 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include "/Users/josephmcilvaine/cpp-cross-platform/include/RobotImpl.h"
+#include "RobotImpl.h"
+#include "RobotFactory.h"
 #ifdef _WIN32
 #include <Windows.h>
+#include "WindowsGlobalListener.h"
 
+std::shared_ptr<Recording> mRecording;
 void test_drawing()
 {
 
@@ -42,20 +45,7 @@ void test_drawing()
 }
 #endif
 /*
-void job()
-{
-    WindowsGlobalListener listener;
-    listener.Start();
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        Sleep(20);
 
-    }
-
-
-    listener.Stop();
-}
 
 void job2()
 {
@@ -198,18 +188,70 @@ void DoJob()
     listen.Start();
 }
 */
+void job()
+{
+    WindowsGlobalListener listener;
+    listener.Start();
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        Sleep(20);
+
+    }
+
+    listener.Stop();
+}
+
 int main()
 {
+    time_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    time_t curr = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+   // std::thread t1(job);
+
+    
+    mRecording = std::shared_ptr<std::vector<std::shared_ptr<mr::PlaybackAction>>>(new Recording);
+
+    WindowsGlobalListener listener;
+    listener.Start();
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        curr = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        std::cout << "curr-start=" << (curr - start) << std::endl;
+        if ((curr - start) >= 1000)
+            break;
+    }
+
+    listener.Stop();
+    /*
     mr::RobotImpl::KeyPress(GlobalKeyEvent());
     for (int i = 0; i < 250; i++)
     {
         GlobalMouseEvent e;
-        e.x = i;
-        e.y = i;
+        e.x = 50;
+        e.y = 50;
         e.action = Mouse::Action::MOVE;
         mr::RobotImpl::MouseMove(e);
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
+*/
+ //   t1.join();
+    std::cout << "record_size=" << mRecording->size() << std::endl;
+    for (int i = 1; i < mRecording->size(); i++)
+    {
+                auto currAction = mRecording->at(i - 1);
+                auto nextAction = mRecording->at(i);
+                currAction->DoAction();
+                auto delta_t = nextAction->TimeStamp() - currAction->TimeStamp();
+              //  std::cout << "currTs=" << currAction->TimeStamp() << std::endl;
+              //  std::cout << "nextTs=" << nextAction->TimeStamp() << std::endl;
+              //  std::cout << "delta_t=" << delta_t << std::endl;
+               time_t t1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               time_t t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               while ((t2 - t1) <= delta_t)
+                    t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+    std::cout << "exting?" << std::endl;
     return 0;
 }
 
