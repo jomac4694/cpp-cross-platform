@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include "RobotFactory.h"
+#include "EventPublisher.h"
 using namespace mr;
 extern std::shared_ptr<Recording> mRecording;
 namespace 
@@ -187,6 +188,7 @@ LRESULT __stdcall WindowsGlobalListener::MouseCallback(int nCode, WPARAM wParam,
            // std::cout << "x=" << m.x <<std::endl;
           //  std::cout << "y=" << m.y << std::endl;
            // std::cout << "timestamp=" << m.timestamp << std::endl;
+           /*
             mRecording->push_back(std::shared_ptr<PlaybackAction>(new MouseAction(m)));
             mouse_move_count++;
             if (mouse_move_count == 5000)
@@ -194,6 +196,8 @@ LRESULT __stdcall WindowsGlobalListener::MouseCallback(int nCode, WPARAM wParam,
                // std::cout << "heyo" << std::endl;
                 PostThreadMessageA(GetCurrentThreadId(), 0, wParam, lParam);
             }
+            */
+            EventPublisher::Instance()->Notify(m);
 			break;
 		}
 
@@ -216,7 +220,7 @@ LRESULT __stdcall WindowsGlobalListener::KeyboardCallback(int nCode, WPARAM wPar
             e.key = virtualKeyToInputKey(kbdStruct.vkCode);
             e.action = Input::KeyBoard::PRESS;
             e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mRecording->push_back(std::shared_ptr<PlaybackAction>(new KeyboardAction(e)));
+           // mRecording->push_back(std::shared_ptr<PlaybackAction>(new KeyboardAction(e)));
 		}
         else if (wParam == WM_KEYUP)
         {
@@ -225,7 +229,7 @@ LRESULT __stdcall WindowsGlobalListener::KeyboardCallback(int nCode, WPARAM wPar
             e.key = virtualKeyToInputKey(kbdStruct.vkCode);
             e.action = Input::KeyBoard::RELEASE;
             e.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            mRecording->push_back(std::shared_ptr<PlaybackAction>(new KeyboardAction(e)));
+            //mRecording->push_back(std::shared_ptr<PlaybackAction>(new KeyboardAction(e)));
 
         }
 	}

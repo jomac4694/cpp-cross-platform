@@ -4,14 +4,14 @@
 #include <chrono>
 #include "RobotImpl.h"
 #include "RobotFactory.h"
-#include "MacGlobalListener.h"
-
+//#include "MacGlobalListener.h"
+#include "EventPublisher.h"
 std::shared_ptr<Recording> mRecording;
 #ifdef _WIN32
 #include <Windows.h>
 #include "WindowsGlobalListener.h"
 
-std::shared_ptr<Recording> mRecording;
+//std::shared_ptr<Recording> mRecording;
 void test_drawing()
 {
 
@@ -253,16 +253,74 @@ void job()
     }
     std::cout << "exting?" << std::endl;
 }
-*/
-
-
 void ajob()
 {
    MacGlobalListener listener;
    listener.Start();
 }
+
+        
+    for (int i = 1; i < s->GetActions().size(); i++)
+    {
+                auto currAction = s->GetActions().at(i - 1);
+                auto nextAction = s->GetActions().at(i);
+                currAction->DoAction();
+                auto delta_t = nextAction->TimeStamp() - currAction->TimeStamp();
+              //  std::cout << "currTs=" << currAction->TimeStamp() << std::endl;
+              //  std::cout << "nextTs=" << nextAction->TimeStamp() << std::endl;
+               std::cout << "delta_t=" << delta_t << std::endl;
+               time_t t1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               time_t t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               while ((t2 - t1) <= delta_t)
+                    t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+*/
+
+void DoJob()
+{
+    mr::Input::KeyBoard::Action a;
+    WindowsGlobalListener listen;
+    listen.Start();
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+    }
+}
+
 int main()
 {
+    std::thread t1(DoJob);
+    std::shared_ptr<TestSub> s = std::shared_ptr<TestSub>(new TestSub);
+    EventPublisher::Instance()->Subscribe(s);
+    while (true)
+    {
+        //std::cout << "WERE GOING IN" << std::endl;
+    std::mutex m;
+    if (s->GetNumActions() > 1000)
+    {
+        std::cout << "we hit 1000" << std::endl;
+            for (int i = 1; i < s->GetActions().size(); i++)
+    {
+                auto currAction = s->GetActions().at(i - 1);
+                auto nextAction = s->GetActions().at(i);
+                currAction->DoAction();
+                auto delta_t = nextAction->TimeStamp() - currAction->TimeStamp();
+              //  std::cout << "currTs=" << currAction->TimeStamp() << std::endl;
+              //  std::cout << "nextTs=" << nextAction->TimeStamp() << std::endl;
+               std::cout << "delta_t=" << delta_t << std::endl;
+               time_t t1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               time_t t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+               while ((t2 - t1) <= delta_t)
+                    t2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+    std::cout << "bye" << std::endl;
+    exit(0);
+    }
+
+
+
+    }
+  //  m.unlock();
     /*
     std::thread t1(ajob);
     mRecording = std::shared_ptr<std::vector<std::shared_ptr<mr::PlaybackAction>>>(new Recording);
@@ -299,8 +357,6 @@ int main()
     }
     m.unlock();
     t1.join();
-    */
-
     CGContextRef drawContext = 0;
 
     CGRect rect;
@@ -316,6 +372,9 @@ int main()
     CGContextFillRect(drawContext, rect);
     while (true){};
     CGContextRelease(drawContext);
+    */
+
+   t1.join();
     return 0;
 }
 

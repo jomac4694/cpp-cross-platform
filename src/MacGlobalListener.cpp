@@ -1,6 +1,7 @@
 #include "MacGlobalListener.h"
 #include "RobotFactory.h"
 #include <chrono>
+#include "EventPublisher.h"
 extern std::shared_ptr<Recording> mRecording;
 
 namespace mr
@@ -302,8 +303,9 @@ CGEventRef MacGlobalListener::OnInput(CGEventTapProxy proxy, CGEventType type, C
         m.x = p.x;
         m.y = p.y;
         m.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        if (mRecording->size() < 500)
-            mRecording->push_back(std::shared_ptr<mr::PlaybackAction>(new mr::MouseAction(m)));
+       // if (mRecording->size() < 500)
+        //    mRecording->push_back(std::shared_ptr<mr::PlaybackAction>(new mr::MouseAction(m)));
+        EventPublisher::Instance()->Notify(m);
         
     }
     return event;

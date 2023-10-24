@@ -10,7 +10,8 @@ set(HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 set(SOURCES 
     src/main.cpp 
     src/Robot.cpp
-    src/Playback.cpp)
+    src/Playback.cpp
+    src/EventPublisher.cpp)
 if (WIN32)
     list(APPEND SOURCES src/WindowsRobotImpl.cpp src/WindowsGlobalListener.cpp)
     list(APPEND HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/Win32")
