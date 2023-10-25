@@ -4,7 +4,7 @@
 #include <chrono>
 #include "RobotImpl.h"
 #include "RobotFactory.h"
-//#include "MacGlobalListener.h"
+#include "MacGlobalListener.h"
 #include "EventPublisher.h"
 std::shared_ptr<Recording> mRecording;
 #ifdef _WIN32
@@ -278,17 +278,30 @@ void ajob()
 
 void DoJob()
 {
-    mr::Input::KeyBoard::Action a;
-    WindowsGlobalListener listen;
+    MacGlobalListener listen;
     listen.Start();
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-    }
+
 }
 
 int main()
 {
+    std::thread t1(DoJob);
+    std::shared_ptr<TestSub> s = std::shared_ptr<TestSub>(new TestSub);
+    EventPublisher::Instance()->Subscribe(s);
+
+    std::shared_ptr<TestSub2> s2 = std::shared_ptr<TestSub2>(new TestSub2);
+    EventPublisher::Instance()->Subscribe(s2);
+    t1.join();
+    /*
+    for (int i = 0; i < 5; i++)
+    {
+        mr::Input::GlobalKeyEvent k;
+        k.key = mr::Input::KeyBoard::A;
+        mr::RobotImpl::KeyPress(k);
+        mr::RobotImpl::KeyRelease(k);
+        sleep(10);
+    }
+    
     std::thread t1(DoJob);
     std::shared_ptr<TestSub> s = std::shared_ptr<TestSub>(new TestSub);
     EventPublisher::Instance()->Subscribe(s);
@@ -321,7 +334,7 @@ int main()
 
     }
   //  m.unlock();
-    /*
+    
     std::thread t1(ajob);
     mRecording = std::shared_ptr<std::vector<std::shared_ptr<mr::PlaybackAction>>>(new Recording);
  
@@ -373,8 +386,6 @@ int main()
     while (true){};
     CGContextRelease(drawContext);
     */
-
-   t1.join();
     return 0;
 }
 

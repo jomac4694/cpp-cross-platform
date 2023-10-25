@@ -21,6 +21,7 @@ public:
     { 
         for (auto &sub : mSubbies)
         {
+            std::lock_guard<std::mutex> lk(mut);
             sub->OnMouseMove(e);
         }
     }
@@ -28,7 +29,7 @@ public:
 private:
     EventPublisher() {}
     std::list<std::shared_ptr<EventSubscriber>> mSubbies;
-    static std::mutex mut;
+    std::mutex mut;
 
 };
 
@@ -38,9 +39,26 @@ class TestSub : public EventSubscriber
         void OnMouseMove(mr::Input::GlobalMouseEvent m) override {
             std::cout << "the mouse is movinggggggggggggggg" << std::endl;
             mr::MouseAction e(m);
-            mMut.lock();
+           // mMut.lock();
             mActions.push_back(std::make_shared<mr::MouseAction>(e));
-            mMut.unlock();
+           // mMut.unlock();
+        }
+        std::vector<std::shared_ptr<mr::PlaybackAction>> GetActions();
+        int GetNumActions();
+    private:
+        std::vector<std::shared_ptr<mr::PlaybackAction>> mActions;
+        std::mutex mMut;
+};
+
+class TestSub2 : public EventSubscriber
+{
+    public:
+        void OnMouseMove(mr::Input::GlobalMouseEvent m) override {
+            std::cout << "the mouse is in another subby" << std::endl;
+            mr::MouseAction e(m);
+           // mMut.lock();
+            mActions.push_back(std::make_shared<mr::MouseAction>(e));
+           // mMut.unlock();
         }
         std::vector<std::shared_ptr<mr::PlaybackAction>> GetActions();
         int GetNumActions();

@@ -9,8 +9,21 @@ std::vector<std::shared_ptr<mr::PlaybackAction>> TestSub::GetActions()
 
 int TestSub::GetNumActions()
 {
-    mMut.lock();
+   // mMut.lock();
     size_t size = mActions.size();
-    mMut.unlock();
+   // mMut.unlock();
+    return size;
+}
+
+std::vector<std::shared_ptr<mr::PlaybackAction>> TestSub2::GetActions()
+{
+    return mActions;
+}
+
+int TestSub2::GetNumActions()
+{
+   // mMut.lock();
+    size_t size = mActions.size();
+   // mMut.unlock();
     return size;
 }
